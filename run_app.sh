@@ -1,4 +1,4 @@
-"#!/bin/bash
+#!/bin/bash
 
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
@@ -19,4 +19,4 @@ echo "Starting Streamlit app..."
 streamlit run app.py
 
 # Deactivate virtual environment on exit
-deactivate"
+deactivate
