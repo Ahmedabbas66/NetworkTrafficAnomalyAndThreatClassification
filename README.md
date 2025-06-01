@@ -4,7 +4,7 @@ This Streamlit application provides an interactive interface for detecting netwo
 
 ## Features
 
-- Upload and analyze network traffic data in CSV format
+- Upload and analyze network traffic data and transform it into a CSV format
 - Visualize anomaly detection results with interactive plots
 - View feature importance to understand what drives anomaly detection
 - Advanced analysis options for deeper investigation
