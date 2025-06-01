@@ -16,6 +16,18 @@ import joblib
 from io import BytesIO
 import streamlit as st
 # Set page configuration
+
+default_model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+default_scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+
+# Debug: show current working directory and list files
+st.write("📂 Current working directory:", os.getcwd())
+st.write("📄 Files in model dir:", os.listdir("Models/BinaryClassification-xgboost/outputs"))
+st.write("✅ Looking for model at:", default_model_path)
+
+if not os.path.exists(default_model_path) or not os.path.exists(default_scaler_path):
+    st.error("❌ Default model or scaler not found! Please check file paths or file names.")
+    st.stop()
 st.set_page_config(
     page_title="Network Anomaly Detection",
     page_icon="🔍",
@@ -99,17 +111,6 @@ with st.sidebar:
 # Function to load model and scaler
 @st.cache_resource
 
-default_model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-default_scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
-
-# Debug: show current working directory and list files
-st.write("📂 Current working directory:", os.getcwd())
-st.write("📄 Files in model dir:", os.listdir("Models/BinaryClassification-xgboost/outputs"))
-st.write("✅ Looking for model at:", default_model_path)
-
-if not os.path.exists(default_model_path) or not os.path.exists(default_scaler_path):
-    st.error("❌ Default model or scaler not found! Please check file paths or file names.")
-    st.stop()
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
         # Use relative paths so it works in Streamlit Cloud
