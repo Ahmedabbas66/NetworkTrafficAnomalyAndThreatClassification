@@ -98,8 +98,8 @@ with st.sidebar:
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
         # Default paths for model and scaler
-        model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-        scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+        model_path = 'Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl'
+        scaler_path = 'Models/BinaryClassification-xgboost/outputs/scaler.pkl'
         
         if not os.path.exists(model_path) or not os.path.exists(scaler_path):
             st.error("Default model or scaler not found. Please upload your own model and scaler files.")
