@@ -11,7 +11,10 @@ import plotly.graph_objects as go
 from sklearn.preprocessing import StandardScaler
 import base64
 from io import BytesIO
-
+import os
+import joblib
+from io import BytesIO
+import streamlit as st
 # Set page configuration
 st.set_page_config(
     page_title="Network Anomaly Detection",
@@ -95,12 +98,6 @@ with st.sidebar:
 
 # Function to load model and scaler
 @st.cache_resource
-
-import os
-import joblib
-from io import BytesIO
-import streamlit as st
-
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
         model_path = os.path.join("Models", "BinaryClassification-xgboost", "outputs", "xgboost_model.pkl")
