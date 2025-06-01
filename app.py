@@ -95,32 +95,31 @@ with st.sidebar:
 
 # Function to load model and scaler
 @st.cache_resource
+
+
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
-        # Default paths for model and scaler
-        model_path = 'Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl'
-        scaler_path = 'Models/BinaryClassification-xgboost/outputs/scaler.pkl'
-        
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            st.error("Default model or scaler not found. Please upload your own model and scaler files.")
-            return None, None
-    
+        model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+        scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+
+    # Check if model and scaler files exist
+    if isinstance(model_path, str) and not os.path.exists(model_path):
+        st.error("Model file not found! Please check the path.")
+        return None, None
+
+    if isinstance(scaler_path, str) and not os.path.exists(scaler_path):
+        st.error("Scaler file not found! Please check the path.")
+        return None, None
+
     try:
-        if isinstance(model_path, str):
-            model = joblib.load(model_path)
-        else:
-            # For file uploader
-            model_bytes = model_path.read()
-            model = joblib.load(BytesIO(model_bytes))
-            
-        if isinstance(scaler_path, str):
-            scaler = joblib.load(scaler_path)
-        else:
-            # For file uploader
-            scaler_bytes = scaler_path.read()
-            scaler = joblib.load(BytesIO(scaler_bytes))
-            
+        # Load model
+        model = joblib.load(model_path) if isinstance(model_path, str) else joblib.load(BytesIO(model_path.read()))
+        
+        # Load scaler
+        scaler = joblib.load(scaler_path) if isinstance(scaler_path, str) else joblib.load(BytesIO(scaler_path.read()))
+        
         return model, scaler
+
     except Exception as e:
         st.error(f"Error loading model or scaler: {e}")
         return None, None
