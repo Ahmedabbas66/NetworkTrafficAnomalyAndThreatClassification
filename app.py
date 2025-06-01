@@ -96,28 +96,31 @@ with st.sidebar:
 # Function to load model and scaler
 @st.cache_resource
 
+import os
+import joblib
+from io import BytesIO
+import streamlit as st
+
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
         model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
         scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
 
-        # If default files are missing, show clear error and return
+        # Make sure they exist
         if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            st.error("Default model or scaler not found. Please upload your model and scaler files.")
-            return None, None
+            st.error("⚠️ Default model or scaler not found. Please make sure the files are in the correct path.")
+            st.stop()
 
     try:
-        # Load model (from path or uploaded file)
+        # Handle both default path and file uploader
         model = joblib.load(model_path) if isinstance(model_path, str) else joblib.load(BytesIO(model_path.read()))
-        
-        # Load scaler (from path or uploaded file)
         scaler = joblib.load(scaler_path) if isinstance(scaler_path, str) else joblib.load(BytesIO(scaler_path.read()))
-        
         return model, scaler
 
     except Exception as e:
-        st.error(f"Error loading model or scaler: {e}")
+        st.error(f"❌ Failed to load model or scaler: {e}")
         return None, None
+
 # Function to preprocess data
 def preprocess_data(df):
     """Remove categorical columns and prepare data for prediction."""
