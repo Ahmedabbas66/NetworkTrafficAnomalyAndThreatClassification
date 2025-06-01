@@ -27,10 +27,6 @@ STREAMLIT_CLOUD_SCALER_PATH = "/mount/src/networktrafficanomalyandthreatclassifi
 LOCAL_MODEL_PATH = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
 LOCAL_SCALER_PATH = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
 
-# Debugging output
-st.write("📂 Current working directory:", os.getcwd())
-if os.path.exists("Models/BinaryClassification-xgboost/outputs"):
-    st.write("📄 Files in model dir:", os.listdir("Models/BinaryClassification-xgboost/outputs"))
 
 # Custom CSS for better appearance
 st.markdown("""
@@ -113,11 +109,11 @@ def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
         if os.path.exists(STREAMLIT_CLOUD_MODEL_PATH) and os.path.exists(STREAMLIT_CLOUD_SCALER_PATH):
             model_path = STREAMLIT_CLOUD_MODEL_PATH
             scaler_path = STREAMLIT_CLOUD_SCALER_PATH
-            st.success("✅ Using Streamlit Cloud model paths")
+            
         elif os.path.exists(LOCAL_MODEL_PATH) and os.path.exists(LOCAL_SCALER_PATH):
             model_path = LOCAL_MODEL_PATH
             scaler_path = LOCAL_SCALER_PATH
-            st.success("✅ Using local model paths")
+            
         else:
             st.error("⚠️ Default model or scaler not found! Make sure both files exist in your repository.")
             st.write("Checked paths:")
