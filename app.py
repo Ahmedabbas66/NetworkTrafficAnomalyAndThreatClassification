@@ -100,25 +100,31 @@ with st.sidebar:
 @st.cache_resource
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
-        model_path = os.path.join("Models", "BinaryClassification-xgboost", "outputs", "xgboost_model.pkl")
-        scaler_path = os.path.join("Models", "BinaryClassification-xgboost", "outputs", "scaler.pkl")
+        # Use relative paths so it works in Streamlit Cloud
+        model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+        scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
 
-        # Check for cloud-readability
-        if not os.path.isfile(model_path):
-            st.error(f"🚫 Model file not found at: {model_path}")
-            st.stop()
-        if not os.path.isfile(scaler_path):
-            st.error(f"🚫 Scaler file not found at: {scaler_path}")
-            st.stop()
-
+        # Check if the files actually exist
+        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            st.error("⚠️ Default model or scaler not found! Make sure both files exist in your GitHub repo.")
+            st.stop()  # Stop further execution
+    
     try:
-        # Load model and scaler either from path or uploaded files
-        model = joblib.load(model_path) if isinstance(model_path, str) else joblib.load(BytesIO(model_path.read()))
-        scaler = joblib.load(scaler_path) if isinstance(scaler_path, str) else joblib.load(BytesIO(scaler_path.read()))
+        # If file paths were uploaded through Streamlit
+        if not isinstance(model_path, str):
+            model = joblib.load(BytesIO(model_path.read()))
+        else:
+            model = joblib.load(model_path)
+
+        if not isinstance(scaler_path, str):
+            scaler = joblib.load(BytesIO(scaler_path.read()))
+        else:
+            scaler = joblib.load(scaler_path)
+
         return model, scaler
 
     except Exception as e:
-        st.error(f"❌ Failed to load model or scaler: {e}")
+        st.error(f"❌ Error loading model or scaler: {e}")
         return None, None
 
 # Function to preprocess data
