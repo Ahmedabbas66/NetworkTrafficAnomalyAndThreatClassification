@@ -11,14 +11,6 @@ import plotly.graph_objects as go
 from sklearn.preprocessing import StandardScaler
 import base64
 from io import BytesIO
-import os
-import joblib
-from io import BytesIO
-import streamlit as st
-# Set page configuration
-
-import streamlit as st
-import os
 
 # ✅ Set page config FIRST — before any st.write/st.title
 st.set_page_config(
@@ -27,13 +19,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Now you can do other things
-default_model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-default_scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+# Define paths - use absolute paths for Streamlit Cloud
+STREAMLIT_CLOUD_MODEL_PATH = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+STREAMLIT_CLOUD_SCALER_PATH = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+
+# Local paths (for development)
+LOCAL_MODEL_PATH = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+LOCAL_SCALER_PATH = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
 
 # Debugging output
 st.write("📂 Current working directory:", os.getcwd())
-st.write("📄 Files in model dir:", os.listdir("Models/BinaryClassification-xgboost/outputs"))
+if os.path.exists("Models/BinaryClassification-xgboost/outputs"):
+    st.write("📄 Files in model dir:", os.listdir("Models/BinaryClassification-xgboost/outputs"))
 
 # Custom CSS for better appearance
 st.markdown("""
@@ -110,17 +107,25 @@ with st.sidebar:
 
 # Function to load model and scaler
 @st.cache_resource
-
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
-        # Use relative paths so it works in Streamlit Cloud
-        model_path = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-        scaler_path = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/scaler.pkl"
-
-        # Check if the files actually exist
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            st.error("⚠️ Default model or scaler not found! Make sure both files exist in your GitHub repo.")
-            st.stop()  # Stop further execution
+        # Try Streamlit Cloud paths first, then local paths
+        if os.path.exists(STREAMLIT_CLOUD_MODEL_PATH) and os.path.exists(STREAMLIT_CLOUD_SCALER_PATH):
+            model_path = STREAMLIT_CLOUD_MODEL_PATH
+            scaler_path = STREAMLIT_CLOUD_SCALER_PATH
+            st.success("✅ Using Streamlit Cloud model paths")
+        elif os.path.exists(LOCAL_MODEL_PATH) and os.path.exists(LOCAL_SCALER_PATH):
+            model_path = LOCAL_MODEL_PATH
+            scaler_path = LOCAL_SCALER_PATH
+            st.success("✅ Using local model paths")
+        else:
+            st.error("⚠️ Default model or scaler not found! Make sure both files exist in your repository.")
+            st.write("Checked paths:")
+            st.write(f"- {STREAMLIT_CLOUD_MODEL_PATH}")
+            st.write(f"- {STREAMLIT_CLOUD_SCALER_PATH}")
+            st.write(f"- {LOCAL_MODEL_PATH}")
+            st.write(f"- {LOCAL_SCALER_PATH}")
+            return None, None
     
     try:
         # If file paths were uploaded through Streamlit
@@ -134,6 +139,7 @@ def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
         else:
             scaler = joblib.load(scaler_path)
 
+        st.success(f"✅ Model and scaler loaded successfully!")
         return model, scaler
 
     except Exception as e:
@@ -269,30 +275,19 @@ def get_table_download_link(df, filename="predictions.csv"):
 # Main application flow
 def main():
     # Load model and scaler
-    if use_default:
-        model_file = r"Models\BinaryClassification-xgboost\outputs\xgboost_model.pkl"
-        scaler_file = r"Models\BinaryClassification-xgboost\outputs\scaler.pkl"
-        
-        # Check if files exist in the directory
-        if os.path.exists(model_file) and os.path.exists(scaler_file):
-            model, scaler = load_model_and_scaler(model_file, scaler_file, use_default=True)
-        else:
-            st.warning("Default model not found. Please upload your model and scaler files.")
-            model, scaler = None, None
-    else:
-        # Load from uploaded files
-        if model_path is not None and scaler_path is not None:
-            model, scaler = load_model_and_scaler(model_path, scaler_path, use_default=False)
-        else:
-            st.warning("Please upload both model and scaler files.")
-            model, scaler = None, None
+    model, scaler = load_model_and_scaler(model_path, scaler_path, use_default)
+    
+    # Only show upload section if model loading failed
+    if model is None or scaler is None:
+        st.warning("⚠️ Please upload your model and scaler files or ensure default files are present.")
+        return
     
     # Upload data file
     st.markdown("<h2 class='section-header'>Upload Data</h2>", unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     
-    # Only proceed if we have both data and model
-    if uploaded_file is not None and model is not None and scaler is not None:
+    # Only proceed if we have data
+    if uploaded_file is not None:
         st.markdown("<div class='success-box'>Data uploaded successfully! Processing...</div>", unsafe_allow_html=True)
         
         # Load and display data
@@ -356,7 +351,8 @@ def main():
             
             # Create scatter plot
             scatter_fig = create_anomaly_scatter(X, y_pred, y_prob, selected_features)
-            st.plotly_chart(scatter_fig, use_container_width=True)
+            if scatter_fig:
+                st.plotly_chart(scatter_fig, use_container_width=True)
         
         # Display feature importance
         st.markdown("<h3>Feature Importance</h3>", unsafe_allow_html=True)
