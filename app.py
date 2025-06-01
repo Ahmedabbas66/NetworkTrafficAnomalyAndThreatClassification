@@ -103,16 +103,19 @@ import streamlit as st
 
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
-        model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-        scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+        model_path = os.path.join("Models", "BinaryClassification-xgboost", "outputs", "xgboost_model.pkl")
+        scaler_path = os.path.join("Models", "BinaryClassification-xgboost", "outputs", "scaler.pkl")
 
-        # Make sure they exist
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            st.error("⚠️ Default model or scaler not found. Please make sure the files are in the correct path.")
+        # Check for cloud-readability
+        if not os.path.isfile(model_path):
+            st.error(f"🚫 Model file not found at: {model_path}")
+            st.stop()
+        if not os.path.isfile(scaler_path):
+            st.error(f"🚫 Scaler file not found at: {scaler_path}")
             st.stop()
 
     try:
-        # Handle both default path and file uploader
+        # Load model and scaler either from path or uploaded files
         model = joblib.load(model_path) if isinstance(model_path, str) else joblib.load(BytesIO(model_path.read()))
         scaler = joblib.load(scaler_path) if isinstance(scaler_path, str) else joblib.load(BytesIO(scaler_path.read()))
         return model, scaler
