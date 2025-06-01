@@ -114,8 +114,8 @@ with st.sidebar:
 def load_model_and_scaler(model_path=None, scaler_path=None, use_default=True):
     if use_default:
         # Use relative paths so it works in Streamlit Cloud
-        model_path = "Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
-        scaler_path = "Models/BinaryClassification-xgboost/outputs/scaler.pkl"
+        model_path = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/xgboost_model.pkl"
+        scaler_path = "/mount/src/networktrafficanomalyandthreatclassification/Models/BinaryClassification-xgboost/outputs/scaler.pkl"
 
         # Check if the files actually exist
         if not os.path.exists(model_path) or not os.path.exists(scaler_path):
