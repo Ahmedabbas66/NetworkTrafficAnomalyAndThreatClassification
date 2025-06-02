@@ -70,9 +70,8 @@ Check the "Show advanced analysis" box in the sidebar to access:
 - For "Module not found" errors, verify all dependencies are installed via `requirements.txt`
 - If the application fails to load the model, check that your model and scaler files are in the correct format and location
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Try Our Product 
+https://networktrafficanomalyandthreatclassification.streamlit.app/
 ## Demo
 [![Watch the video](assets/Product-demo-video.png)](https://drive.google.com/uc?id=1gjuDRZkXfon3UsV7E09k12OF-ZhDuRP-&export=preview)
 
